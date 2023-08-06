@@ -2,11 +2,12 @@
 
 package com.smokedpaprika.tesseractscanner
 
-import ImagePicker
-import OCRProcessor
+import com.smokedpaprika.tesseractscanner.utils.ImagePicker
+import com.smokedpaprika.tesseractscanner.utils.OCRProcessor
+import TesseractService
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
-import android.content.res.AssetManager
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -15,9 +16,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.googlecode.tesseract.android.TessBaseAPI
-import java.io.File
-import java.io.FileOutputStream
+import com.smokedpaprika.tesseractscanner.fragments.ImageCropFragment
 import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
@@ -25,14 +24,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var CropImageButton: Button
     private lateinit var IVPreviewImage: ImageView
     private lateinit var OcrTextView: TextView
-    private var SELECT_PICTURE = 200
-
-    private lateinit var tessBaseAPI: TessBaseAPI
-    private lateinit var tessDataPath: String
-    private lateinit var imagePicker: ImagePicker
-    private lateinit var ocrProcessor: OCRProcessor
 
     private lateinit var pickedImageUri: Uri
+
+    private val imagePicker = ImagePicker(this)
+    private val ocrProcessor = OCRProcessor()
+    private val tesseractService = TesseractService(this)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,64 +40,44 @@ class MainActivity : AppCompatActivity() {
         OcrTextView = findViewById(R.id.OcrTextView)
         CropImageButton = findViewById(R.id.cropImageButton)
 
-        imagePicker = ImagePicker(this)
-        ocrProcessor = OCRProcessor()
-
         BSelectImage.setOnClickListener {
             imagePicker.selectImage()
         }
-
         CropImageButton.setOnClickListener {
             openImageCropFragment(pickedImageUri)
         }
 
-        initializeTessBaseAPI()
+        tesseractService.initializeTessBaseAPI()
     }
 
-    private fun openImageCropFragment(imageUri: Uri) {
-        // Create a new instance of ImageCropFragment and pass the imageUri as an argument
-        val imageCropFragment = ImageCropFragment.newInstance(imageUri)
-        // Show the ImageCropFragment as a full-screen dialog
-        imageCropFragment.show(supportFragmentManager, "ImageCropFragment")
-    }
-
-    fun onImageCroppedBitmap(croppedUri: Bitmap?) {
-        // Handle the cropped image URI here
-        if (croppedUri != null) {
-            // Display the cropped image in an ImageView (optional)
-            //IVPreviewImage.setImageURI(croppedUri)
-            val recognizedText = ocrProcessor.performOCR(this, croppedUri, tessBaseAPI)
-            OcrTextView.text = recognizedText
+    private fun openImageCropFragment(imageUri: Uri?) {
+        if (imageUri != null) {
+            val imageCropFragment = ImageCropFragment.newInstance(imageUri)
+            imageCropFragment.show(
+                supportFragmentManager,
+                "com.smokedpaprika.tesseractscanner.fragments.ImageCropFragment"
+            )
+        } else {
+            showAlertDialog("Error", "Image URI is null.")
         }
     }
 
-    private fun initializeTessBaseAPI() {
-        try {
-            val assetManager: AssetManager = assets
-
-            val tesseractFolder = File(filesDir, "tesseract")
-            tessDataPath = tesseractFolder.absolutePath
-            val tessdataDir = File(tessDataPath, "tessdata")
-            val languageDataFileName = "eng.traineddata"
-            val languageDataFile = File(tessdataDir, languageDataFileName)
-
-            if (!tessdataDir.exists()) {
-                tessdataDir.mkdirs()
+    private fun showAlertDialog(title: String, message: String) {
+        val alertDialog = AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
             }
+            .setCancelable(false)
+            .create()
+        alertDialog.show()
+    }
 
-            if (!languageDataFile.exists()) {
-                val inputStream = assetManager.open("eng.traineddata")
-                val outputStream = FileOutputStream(languageDataFile)
-                inputStream.copyTo(outputStream)
-                inputStream.close()
-                outputStream.close()
-            }
-
-            tessBaseAPI = TessBaseAPI()
-            tessBaseAPI.init(tessDataPath, "eng")
-
-        } catch (err: Exception) {
-            Log.e("MainActivity", "Error: $err")
+    fun onImageCroppedBitmap(croppedUri: Bitmap?) {
+        if (croppedUri != null) {
+            val recognizedText = ocrProcessor.performOCR( croppedUri, tesseractService.tessBaseAPI)
+            OcrTextView.text = recognizedText
         }
     }
 
@@ -113,7 +90,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 if (imgUri != null) {
                     pickedImageUri = imgUri
-                    val recognizedText = ocrProcessor.performOCR(this, imgUri, tessBaseAPI)
+                    val recognizedText = ocrProcessor.performOCR(this, imgUri, tesseractService.tessBaseAPI)
                     OcrTextView.text = recognizedText
                 }
             } catch (err: Exception) {

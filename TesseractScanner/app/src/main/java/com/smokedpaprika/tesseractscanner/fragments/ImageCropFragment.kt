@@ -1,3 +1,5 @@
+package com.smokedpaprika.tesseractscanner.fragments
+
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -14,45 +16,44 @@ class ImageCropFragment : DialogFragment() {
     private lateinit var cropImageView: CropImageView
     private lateinit var confirmButton: Button
     private lateinit var imageUri: Uri
-    private lateinit var croppedUri: Uri
 
     companion object {
         private const val ARG_IMAGE_URI = "arg_image_uri"
 
         fun newInstance(imageUri: Uri): ImageCropFragment {
-            val args = Bundle()
-            args.putParcelable(ARG_IMAGE_URI, imageUri)
-            val fragment = ImageCropFragment()
-            fragment.arguments = args
-            return fragment
+            return ImageCropFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(ARG_IMAGE_URI, imageUri)
+                }
+            }
         }
     }
+
     override fun getTheme(): Int {
         return R.style.DialogTheme
     }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_image_crop, container, false)
-        cropImageView = rootView.findViewById(R.id.cropImageView)
-        confirmButton = rootView.findViewById(R.id.confirmButton)
+    ): View {
+        return inflater.inflate(R.layout.fragment_image_crop, container, false).apply {
+            cropImageView = findViewById(R.id.cropImageView)
+            confirmButton = findViewById(R.id.confirmButton)
 
-        imageUri = arguments?.getParcelable<Uri>(ARG_IMAGE_URI) ?: Uri.EMPTY
+            imageUri = arguments?.getParcelable(ARG_IMAGE_URI) ?: Uri.EMPTY
 
-        cropImageView.setImageUriAsync(imageUri)
+            cropImageView.setImageUriAsync(imageUri)
 
-        confirmButton.setOnClickListener {
-            performImageCrop()
+            confirmButton.setOnClickListener {
+                performImageCrop()
+            }
         }
-
-        return rootView
     }
 
     private fun performImageCrop() {
-        var croppedImageBitmap = cropImageView.getCroppedImage()
+        val croppedImageBitmap = cropImageView.getCroppedImage()
         (activity as? MainActivity)?.onImageCroppedBitmap(croppedImageBitmap)
         dismiss()
     }
-
 }

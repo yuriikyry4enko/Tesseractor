@@ -1,3 +1,5 @@
+package com.smokedpaprika.tesseractscanner.utils
+
 import android.Manifest
 import android.app.Activity
 import android.content.Intent
