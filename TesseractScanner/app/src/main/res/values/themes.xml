@@ -6,4 +6,10 @@
     </style>
 
     <style name="Theme.TesseractScanner" parent="Base.Theme.TesseractScanner" />
+
+    <style name="DialogTheme" parent="Theme.TesseractScanner">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowIsFloating">false</item>
+    </style>
 </resources>

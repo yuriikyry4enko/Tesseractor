@@ -33,6 +33,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/BSelectImage" />
+
+        <Button
+            android:id="@+id/cropImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="32dp"
+            android:text="CROP IMAGE"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/IVPreviewImage"/>
+
         <TextView
             android:id="@+id/OcrTextView"
             android:layout_margin="16dp"
@@ -40,7 +54,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/IVPreviewImage"
+            app:layout_constraintTop_toBottomOf="@+id/cropImageButton"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"/>
 
