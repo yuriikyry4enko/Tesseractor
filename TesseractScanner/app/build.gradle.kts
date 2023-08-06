@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.smokedpaprika.tesseractscanner"
-    compileSdk = 34
+    compileSdk = 33
 
     defaultConfig {
         applicationId = "com.smokedpaprika.tesseractscanner"
-        minSdk = 34
-        targetSdk = 34
+        minSdk = 31
+        targetSdk = 33
         versionCode = 1
         versionName = "1.0"
 
@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-
+    implementation ("com.rmtheis:tess-two:9.0.0")
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.8.0")
