@@ -1,0 +1,30 @@
+# Kotlin-specific
+*.class
+*.jar
+*.war
+*.ear
+.gradle/
+build/
+
+# IDE-specific (you may choose the relevant ones)
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Compiled and generated files
+out/
+bin/
+build/
+
+# Dependency directories
+lib/
+libs/
+dependencies/
+
+# Gradle-specific
+.gradle
+gradle/
+gradlew
+gradlew.bat
