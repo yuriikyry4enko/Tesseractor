@@ -1,7 +1,3 @@
 # Tesseractor
 Android app to explore for myself TesseractOCR.  Intelligent Text Recognition
-[![Demo Video]
-
-
-https://github.com/yuriikyry4enko/Tesseractor/assets/30159545/7884783e-47b8-4f09-8e66-4392f73c1040
-
+![demo](https://github.com/yuriikyry4enko/Tesseractor/assets/30159545/71a6ee59-c59f-4f67-9678-ff6ccca3b721)
