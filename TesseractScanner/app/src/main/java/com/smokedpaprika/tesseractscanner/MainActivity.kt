@@ -1,5 +1,10 @@
+// Assuming the app follows MVVM architecture
+
 package com.smokedpaprika.tesseractscanner
 
+import ImagePicker
+import OCRProcessor
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -15,6 +20,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.googlecode.tesseract.android.TessBaseAPI
 import java.io.File
@@ -29,6 +35,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var tessBaseAPI: TessBaseAPI
     private lateinit var tessDataPath: String
+    private lateinit var imagePicker: ImagePicker
+    private lateinit var ocrProcessor: OCRProcessor
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,11 +46,17 @@ class MainActivity : AppCompatActivity() {
         IVPreviewImage = findViewById(R.id.IVPreviewImage)
         OcrTextView = findViewById(R.id.OcrTextView)
 
+        imagePicker = ImagePicker(this)
+        ocrProcessor = OCRProcessor()
+
         BSelectImage.setOnClickListener {
-            val pickImg = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
-            changeImage.launch(pickImg)
+            imagePicker.selectImage()
         }
 
+        initializeTessBaseAPI()
+    }
+
+    private fun initializeTessBaseAPI() {
         try {
             val assetManager: AssetManager = assets
 
@@ -72,33 +86,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private val changeImage = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            val data = result.data
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ImagePicker.REQUEST_IMAGE_CODE && resultCode == Activity.RESULT_OK) {
             val imgUri = data?.data
             IVPreviewImage.setImageURI(imgUri)
 
             try {
                 if (imgUri != null) {
-                    val recognizedText = performOCR(imgUri)
+                    val recognizedText = ocrProcessor.performOCR(this, imgUri, tessBaseAPI)
                     OcrTextView.text = recognizedText
                 }
             } catch (err: Exception) {
                 Log.e("MainActivity", "Error: $err")
             }
         }
-    }
-
-    private fun performOCR(imageUri: Uri): String? {
-        val inputStream = contentResolver.openInputStream(imageUri)
-        val bitmap = BitmapFactory.decodeStream(inputStream)
-
-        tessBaseAPI.setImage(bitmap)
-
-        val recognizedText = tessBaseAPI.utF8Text
-
-        return recognizedText
     }
 }
